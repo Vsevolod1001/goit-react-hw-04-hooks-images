@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import {useState, useEffect} from "react";
 import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import Button from "./Button/Button";
@@ -9,87 +9,71 @@ import axios from "axios";
 
 const API_KEY = '24451027-294a199a6fff21fcc9d265d96';
 const BASE_URL = 'https://pixabay.com/api/';
-class App extends Component {
-  state = {
-    searchResults: '',
-    images: [],
-    showModal: false,
-    largeImages: '',
-    isLoad: false,
-    page: 1,
-    error: null,
-  }
-  
-   async componentDidUpdate (prevProps, prevState) { 
-        const nextName = this.state.searchResults; 
-        const prevName = prevState.searchResults ;   
-        const { page, searchResults } = this.state;
-          
-        if (prevName !== nextName || prevState.page !== page) {  
-          this.setState({isLoad: true})
-          if (prevName !== nextName)  {
-            this.setState({page: 1})
+export default function App() {
+  const [searchResults, setSearchResults] = useState('');
+  const [images, setImages] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImages, setLargeImages] = useState('');
+  const [isLoad, setIsLoad] = useState(false);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (searchResults === '') {
+      return
+    }
+
+    async function FetchImages () {
+      setIsLoad(true);
+      try {
+        const response = await axios.get(`${BASE_URL}?q=${searchResults}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`);        
+        const currentImg = response.data.hits.map(({id, webformatURL, largeImageURL}) => {
+          return {id, webformatURL, largeImageURL};
+        });
+        setImages(prevState => [...prevState, ...currentImg] )
+          if (response.data.hits.length === 0) {
+            alert(`по запросу ${searchResults} изображений не найдено`)
           }
-            try {
-              const response = await axios.get(`${BASE_URL}?q=${nextName}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`);
-              console.log(response)
-              const currentImg = response.data.hits.map(({id, webformatURL, largeImageURL}) => {
-                return {id, webformatURL, largeImageURL};
-              });
-              this.setState((prevState) => ({ 
-                images: [...prevState.images, ...currentImg] }))
-                if (response.data.hits.length === 0) {
-                  alert(`по запросу ${searchResults} изображений не найдено`)
-                }
-               
-            } catch (error) {
-              this.setState({ error });
-            } finally {
-              this.setState({isLoad: false})
-              
-            }            
-        }        
-        }
-    //    fetch(`${BASE_URL}?q=${nextName}&page=${this.state.page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
-        // .then(res => res.json())
-        // .then(images => this.setState({images: images.hits}))
-        // .finally(() => this.setState({isLoad: false}))
-  hendleSearchbarSubmit = searchResults => {
-    this.setState({searchResults, images: []})
+         
+      } catch (error) {
+        setError( error );
+      } finally {
+        setIsLoad(false)
+        
+      }      
+    }
+    FetchImages()
+  }, [searchResults, page]);
+
+  const hendleSearchbarSubmit = searchResults => {
+    setSearchResults(searchResults);
+    setImages([]);
+    setPage(1);
   }
-  hendleLargeImages = largeImages => {
-    this.setState({largeImages})
+  const hendleLargeImages = largeImages => {
+    setLargeImages(largeImages)
   }
-  toggleModal = () => {
-    this.setState(({showModal}) => ({
-      showModal: !showModal,
-    }));
+  const toggleModal = () => {
+    setShowModal(prevState => !prevState);
   };
-  hendleClickLoadMore = () => {
-    this.setState((prevState) => ({
-      page: prevState.page + 1
-    }))
-  }
-  render () {
-    const { images, error, showModal, largeImages, isLoad } = this.state;
-    const { hendleSearchbarSubmit, toggleModal, hendleLargeImages, hendleClickLoadMore } = this;
-    
-    
+  // const hendleClickLoadMore = () => {
+  //   setPage(prevState => prevState + 1)
+  // }
+ 
     return (
     <>
-      <Searchbar onSubmit={hendleSearchbarSubmit}/>
-      {isLoad && <Loader />}
+      <Searchbar onSubmit={hendleSearchbarSubmit}/>      
       {error && <Error />}
       {images.length > 0 && <ImageGallery 
         images={images}
         toggleM={toggleModal}
         largeUrl={hendleLargeImages}
       />}
-      {images.length > 0 && <Button onClick={hendleClickLoadMore}/>}
+      {images.length > 0 && <Button setPage={setPage}/>}
       {showModal && <Modal onClose={toggleModal} srsLarge={largeImages}/>}
-      
+      {isLoad && <Loader />}
     </>
     )
-  }
+  
 }
-export default App
+

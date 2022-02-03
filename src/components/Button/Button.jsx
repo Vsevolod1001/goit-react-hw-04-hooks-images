@@ -3,10 +3,10 @@ import { ButtonLm, BtnDiv } from "./Button.styled";
 import PropTypes from "prop-types";
 
 
-const Button = ({onClick}) => {
+const Button = ({setPage}) => {
     return (
         <BtnDiv>
-            <ButtonLm type="submit" onClick={onClick}>
+            <ButtonLm type="submit" onClick={() => setPage(page => page + 1)}>
                 Load more
             </ButtonLm>
         </BtnDiv>
@@ -14,6 +14,6 @@ const Button = ({onClick}) => {
 
 }
 Button.propTypes = {
-    onClick: PropTypes.func.isRequired,
+    setPage: PropTypes.func.isRequired,
 }
 export default Button

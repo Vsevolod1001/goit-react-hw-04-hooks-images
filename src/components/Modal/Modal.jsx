@@ -1,41 +1,45 @@
-import React, {Component} from "react";
+import {useEffect} from "react";
 import { Overlay, ModalEl } from "./Modal.styled";
 import PropTypes from "prop-types";
 
 
-class Modal extends Component {
-    static propTypes = {
-        srsLarge: PropTypes.string.isRequired,
-    } 
-    componentDidMount() {
-        window.addEventListener('keydown', this.hendleKeyDown);
-    }
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.hendleKeyDown)
-
-    }
-    hendleKeyDown = e => {
+export default function Modal ({onClose, srsLarge}) {
+   
+    useEffect(() => {
+        
+        
+    }, []);
+    
+    useEffect(() => {
+        window.addEventListener('keydown', hendleKeyDown);
+    
+      return () => {
+          console.log('хуй')
+        window.removeEventListener('keydown', hendleKeyDown)
+      };
+    }, []);
+ 
+    const hendleKeyDown = e => {
+        console.log(e)
         if (e.code === 'Escape') {
-            this.props.onClose()
+            onClose()
           }
     }
-    hendleBackdropClick = e => {
+    const hendleBackdropClick = e => {
         if(e.currentTarget === e.target) {
-            this.props.onClose();
+            onClose();
         }
     }
-    render () {
-        const { srsLarge } = this.props;
-        
         return (
-            <Overlay onClick={this.hendleBackdropClick}>
+            <Overlay onClick={hendleBackdropClick}>
                 <ModalEl>
                     <img src={srsLarge} alt="" />
                 </ModalEl>
             </Overlay>
         )
-    }
+    
       
 }
-
-export default Modal
+Modal.propTypes = {
+    srsLarge: PropTypes.string.isRequired,
+} 

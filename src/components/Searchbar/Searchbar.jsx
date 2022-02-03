@@ -1,34 +1,28 @@
-import React, {Component} from "react";
+import  {useState} from "react";
 import { SearchbarHeader, SearchForm, SearchFormInput, SearchFormBtn } from "./Searchbar.styled";
 import PropTypes from "prop-types";
 import { FiSearch } from 'react-icons/fi';
 
-class Searchbar extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
+export default function Searchbar ({onSubmit}) {
+  const [searchPic, setSearchPic] = useState('');
+ 
+  const hendleChangeName = e => {
+    setSearchPic(e.currentTarget.value)
   }
-  state = {
-    searchPic: '',
-  }
-  hendleChangeName = e => {
-    this.setState({searchPic: e.currentTarget.value})
-  }
-  hendleSubmit = e => {
+  const hendleSubmit = e => {
     e.preventDefault();
-    if (this.state.searchPic.trim() === '') {
+    if (searchPic.trim() === '') {
       alert('введите название поиска')
       return;
     }
-    this.props.onSubmit(this.state.searchPic)
-    this.setState({searchPic: ''});
+    onSubmit(searchPic)
+    setSearchPic('');
   }
 
-  render () {
-    const { searchPic } = this.state;
-    
+ 
     return (
       <SearchbarHeader>
-      <SearchForm onSubmit={this.hendleSubmit}>
+      <SearchForm onSubmit={hendleSubmit}>
         <SearchFormBtn type="submit">
           <span>
             <FiSearch size={30}/>
@@ -40,12 +34,14 @@ class Searchbar extends Component {
           autocomplete="off"
           // autofocus
           value={searchPic}
-          onChange={this.hendleChangeName}
+          onChange={hendleChangeName}
           placeholder="Search images and photos"
         />
       </SearchForm>
     </SearchbarHeader>
     );
-  }
+  
 }
-export default Searchbar;
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+}

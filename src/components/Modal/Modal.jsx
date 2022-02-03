@@ -13,8 +13,7 @@ export default function Modal ({onClose, srsLarge}) {
     useEffect(() => {
         window.addEventListener('keydown', hendleKeyDown);
     
-      return () => {
-          console.log('хуй')
+      return () => {          
         window.removeEventListener('keydown', hendleKeyDown)
       };
     }, []);

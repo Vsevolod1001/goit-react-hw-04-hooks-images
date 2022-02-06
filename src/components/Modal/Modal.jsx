@@ -5,10 +5,7 @@ import PropTypes from "prop-types";
 
 export default function Modal ({onClose, srsLarge}) {
    
-    useEffect(() => {
-        
-        
-    }, []);
+  
     
     useEffect(() => {
         window.addEventListener('keydown', hendleKeyDown);
